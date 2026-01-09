@@ -321,9 +321,6 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 
 MIT License - see LICENSE file for details
 
-## 🤝 Contributing
-
-This is a portfolio project for FAANG interviews. Feel free to fork and customize for your own use.
 
 ## 📧 Contact
 
