@@ -1,40 +1,35 @@
-# Multi-stage build for production optimization
-FROM python:3.11-slim as builder
+# Multi-stage build for Scala application
+FROM sbtscala/scala-sbt:eclipse-temurin-jammy-21.0.5_11_1.10.6_3.6.2 AS builder
 
-# Set working directory
 WORKDIR /app
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    gcc \
-    postgresql-client \
-    && rm -rf /var/lib/apt/lists/*
+# Copy build files
+COPY build.sbt .
+COPY project ./project
 
-# Copy requirements and install Python dependencies
-COPY requirements.txt .
-RUN pip install --no-cache-dir --user -r requirements.txt
+# Download dependencies (cached layer)
+RUN sbt update
+
+# Copy source code
+COPY src ./src
+
+# Build fat JAR
+RUN sbt assembly
 
 # Production stage
-FROM python:3.11-slim
+FROM eclipse-temurin:21-jre-alpine
 
-# Create non-root user for security
-RUN useradd -m -u 1000 appuser
+# Create non-root user
+RUN addgroup -g 1000 appuser && \
+    adduser -D -u 1000 -G appuser appuser
 
 WORKDIR /app
 
-# Install runtime dependencies
-RUN apt-get update && apt-get install -y \
-    postgresql-client \
-    && rm -rf /var/lib/apt/lists/*
+# Copy JAR from builder
+COPY --from=builder /app/target/scala-3.6.2/url-shortener.jar ./app.jar
 
-# Copy Python dependencies from builder
-COPY --from=builder /root/.local /home/appuser/.local
-
-# Copy application code
-COPY --chown=appuser:appuser . .
-
-# Set PATH to include user-installed packages
-ENV PATH=/home/appuser/.local/bin:$PATH
+# Set ownership
+RUN chown -R appuser:appuser /app
 
 # Switch to non-root user
 USER appuser
@@ -44,7 +39,7 @@ EXPOSE 8000
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD python -c "import requests; requests.get('http://localhost:8000/health')"
+    CMD wget --no-verbose --tries=1 --spider http://localhost:8000/health || exit 1
 
 # Run application
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["java", "-jar", "app.jar"]

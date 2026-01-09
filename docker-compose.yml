@@ -13,7 +13,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U urlshortener"]
+      test: [ "CMD-SHELL", "pg_isready -U urlshortener" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -26,7 +26,7 @@ services:
     volumes:
       - redis_data:/data
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: [ "CMD", "redis-cli", "ping" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -37,8 +37,8 @@ services:
       dockerfile: Dockerfile
     container_name: urlshortener-backend
     environment:
-      DATABASE_URL: postgresql+asyncpg://urlshortener:urlshortener@postgres:5432/urlshortener
-      REDIS_URL: redis://redis:6379/0
+      DATABASE_URL: jdbc:postgresql://postgres:5432/urlshortener?user=urlshortener&password=urlshortener
+      REDIS_URL: redis://redis:6379
       JWT_SECRET_KEY: dev-secret-key-change-in-production
       ENVIRONMENT: development
       DEBUG: "true"
@@ -52,7 +52,7 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    command: sbt run
 
   frontend:
     build:
