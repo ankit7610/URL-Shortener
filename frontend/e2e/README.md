@@ -26,7 +26,13 @@
 - ✅ Proper ARIA labels for accessibility
 - ✅ Keyboard navigation works
 
-### Total Tests: 16
+### Batch 5: Animations & Visual Effects (4 tests)
+- ✅ Hover effects on feature cards
+- ✅ Gradient background animation
+- ✅ Button hover effects
+- ✅ Statistics hover scale effect
+
+### Total Tests: 20
 
 ## Running Tests
 
@@ -51,6 +57,8 @@ Tests are organized in the `e2e/` directory:
 - `theme.spec.ts` - Theme toggle tests
 - `responsive.spec.ts` - Responsive design tests
 - `accessibility.spec.ts` - Form interactions & accessibility tests
+- `animations.spec.ts` - Animations & visual effects tests
+
 
 
 
