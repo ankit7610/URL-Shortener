@@ -135,11 +135,7 @@ export default function HomePage() {
             {/* Footer */}
             <footer className="border-t border-white/20 dark:border-gray-800/50 bg-white/30 dark:bg-gray-900/30 backdrop-blur-xl mt-16">
                 <div className="container mx-auto px-4 py-8 text-center text-gray-600 dark:text-gray-400">
-                    <p className="flex items-center justify-center gap-2">
-                        © 2026 LinkShort. Built with
-                        <span className="text-red-500 animate-pulse">❤️</span>
-                        for FAANG interviews.
-                    </p>
+                    <p>© 2026 LinkShort. All rights reserved.</p>
                 </div>
             </footer>
         </div>
