@@ -105,9 +105,9 @@ export default function HomePage() {
             </main>
 
             {/* Footer */}
-            <footer className="border-t bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm mt-16">
+            <footer className="border-t border-white/20 dark:border-gray-800/50 bg-white/30 dark:bg-gray-900/30 backdrop-blur-xl mt-16">
                 <div className="container mx-auto px-4 py-8 text-center text-gray-600 dark:text-gray-400">
-                    <p>© 2026 LinkShort. Built with ❤️ for FAANG interviews.</p>
+                    <p>© 2026 LinkShort. All rights reserved.</p>
                 </div>
             </footer>
         </div>
