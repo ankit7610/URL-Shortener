@@ -71,7 +71,11 @@ libraryDependencies ++= Seq(
   // Testing
   "dev.zio" %% "zio-test" % zioVersion % Test,
   "dev.zio" %% "zio-test-sbt" % zioVersion % Test,
-  "org.tpolecat" %% "doobie-scalatest" % doobieVersion % Test
+  "org.tpolecat" %% "doobie-scalatest" % doobieVersion % Test,
+  
+  // Database Testing
+  "io.zonky.test" % "embedded-postgres" % "2.0.7" % Test,
+  "org.testcontainers" % "postgresql" % "1.19.3" % Test
 )
 
 // Test framework
