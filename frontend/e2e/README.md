@@ -14,7 +14,13 @@
 - ✅ Correct theme icon is displayed
 - ✅ Theme tooltip shows on hover
 
-### Total Tests: 8
+### Batch 3: Responsive Design (4 tests)
+- ✅ Mobile menu displays on small screens
+- ✅ Feature cards stack on mobile
+- ✅ Tablet layout displays properly
+- ✅ Desktop layout displays properly
+
+### Total Tests: 12
 
 ## Running Tests
 
@@ -37,4 +43,6 @@ npm run test:e2e:debug
 Tests are organized in the `e2e/` directory:
 - `home.spec.ts` - Home page tests
 - `theme.spec.ts` - Theme toggle tests
+- `responsive.spec.ts` - Responsive design tests
+
 
