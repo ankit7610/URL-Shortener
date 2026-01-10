@@ -32,7 +32,13 @@
 - ✅ Button hover effects
 - ✅ Statistics hover scale effect
 
-### Total Tests: 20
+### Batch 6: Performance & Edge Cases (4 tests)
+- ✅ Page loads within acceptable time (<3s)
+- ✅ Empty URL input handled gracefully
+- ✅ All images and icons render correctly
+- ✅ Scroll position maintained on theme toggle
+
+### Total Tests: 24
 
 ## Running Tests
 
@@ -58,6 +64,8 @@ Tests are organized in the `e2e/` directory:
 - `responsive.spec.ts` - Responsive design tests
 - `accessibility.spec.ts` - Form interactions & accessibility tests
 - `animations.spec.ts` - Animations & visual effects tests
+- `performance.spec.ts` - Performance & edge cases tests
+
 
 
 
