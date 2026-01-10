@@ -19,11 +19,11 @@ test.describe('Responsive Design', () => {
         await page.setViewportSize({ width: 375, height: 667 });
         await page.goto('/');
 
-        // All feature cards should still be visible
-        await expect(page.getByText('Advanced Analytics')).toBeVisible();
-        await expect(page.getByText('Custom Short Links')).toBeVisible();
-        await expect(page.getByText('Password Protection')).toBeVisible();
-        await expect(page.getByText('QR Codes')).toBeVisible();
+        // All feature cards should still be visible using role selectors
+        await expect(page.getByRole('heading', { name: 'Advanced Analytics' })).toBeVisible();
+        await expect(page.getByRole('heading', { name: 'Custom Short Links' })).toBeVisible();
+        await expect(page.getByRole('heading', { name: 'Password Protection' })).toBeVisible();
+        await expect(page.getByRole('heading', { name: 'QR Codes' })).toBeVisible();
     });
 
     test('should display properly on tablet', async ({ page }) => {

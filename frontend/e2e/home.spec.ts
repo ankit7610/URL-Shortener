@@ -23,11 +23,11 @@ test.describe('Home Page - Basic Functionality', () => {
     test('should display all feature cards', async ({ page }) => {
         await page.goto('/');
 
-        // Check all 4 feature cards are visible
-        await expect(page.getByText('Advanced Analytics')).toBeVisible();
-        await expect(page.getByText('Custom Short Links')).toBeVisible();
-        await expect(page.getByText('Password Protection')).toBeVisible();
-        await expect(page.getByText('QR Codes')).toBeVisible();
+        // Check all 4 feature cards are visible using role selectors
+        await expect(page.getByRole('heading', { name: 'Advanced Analytics' })).toBeVisible();
+        await expect(page.getByRole('heading', { name: 'Custom Short Links' })).toBeVisible();
+        await expect(page.getByRole('heading', { name: 'Password Protection' })).toBeVisible();
+        await expect(page.getByRole('heading', { name: 'QR Codes' })).toBeVisible();
     });
 
     test('should display navigation links', async ({ page }) => {
