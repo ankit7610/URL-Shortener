@@ -6,7 +6,7 @@
 [![Next.js](https://img.shields.io/badge/Next.js-14.1-black.svg)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue.svg)](https://www.typescriptlang.com/)
 
-A **FAANG-level** URL shortener demonstrating production-ready system design, scalability, and engineering excellence. Built to showcase advanced backend architecture, real-time analytics, and modern frontend development.
+A **production-grade** URL shortener demonstrating enterprise-level system design, scalability, and engineering excellence. Built to showcase advanced backend architecture, real-time analytics, and modern frontend development.
 
 ## ✨ Features
 
