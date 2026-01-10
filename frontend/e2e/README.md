@@ -8,7 +8,13 @@
 - ✅ Navigation links are visible
 - ✅ Statistics section is displayed
 
-### Total Tests: 4
+### Batch 2: Theme Toggle Functionality (4 tests)
+- ✅ Toggle between light and dark themes
+- ✅ Theme preference persists after reload
+- ✅ Correct theme icon is displayed
+- ✅ Theme tooltip shows on hover
+
+### Total Tests: 8
 
 ## Running Tests
 
@@ -30,3 +36,5 @@ npm run test:e2e:debug
 
 Tests are organized in the `e2e/` directory:
 - `home.spec.ts` - Home page tests
+- `theme.spec.ts` - Theme toggle tests
+
