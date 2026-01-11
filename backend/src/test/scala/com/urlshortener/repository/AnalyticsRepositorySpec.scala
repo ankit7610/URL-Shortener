@@ -139,6 +139,67 @@ object AnalyticsRepositorySpec extends ZIOSpecDefault:
         stats <- analyticsRepo.getClickStats(createdUrl.id, days = 30)
       yield 
         assertTrue(stats.clicksByDay.nonEmpty)
+    },
+    
+    test("getClickStats should return empty stats for URL with no clicks") {
+      for
+        analyticsRepo <- ZIO.service[AnalyticsRepository]
+        urlRepo <- ZIO.service[URLRepository]
+        
+        url = DomainURL.create("noclicks", "https://example.com")
+        createdUrl <- urlRepo.create(url)
+        
+        stats <- analyticsRepo.getClickStats(createdUrl.id, days = 30)
+      yield 
+        assertTrue(stats.totalClicks == 0) &&
+        assertTrue(stats.uniqueVisitors == 0)
+    },
+    
+    test("findByUrlId should return empty list for URL with no analytics") {
+      for
+        analyticsRepo <- ZIO.service[AnalyticsRepository]
+        urlRepo <- ZIO.service[URLRepository]
+        
+        url = DomainURL.create("noanalytics", "https://example.com")
+        createdUrl <- urlRepo.create(url)
+        
+        records <- analyticsRepo.findByUrlId(createdUrl.id, days = 30)
+      yield 
+        assertTrue(records.isEmpty)
+    },
+    
+    test("getClickStats should handle different day ranges") {
+      for
+        analyticsRepo <- ZIO.service[AnalyticsRepository]
+        urlRepo <- ZIO.service[URLRepository]
+        
+        url = DomainURL.create("ranges", "https://example.com")
+        createdUrl <- urlRepo.create(url)
+        
+        _ <- analyticsRepo.create(Analytics.create(createdUrl.id, Some("1.1.1.1")))
+        
+        stats1 <- analyticsRepo.getClickStats(createdUrl.id, days = 1)
+        stats7 <- analyticsRepo.getClickStats(createdUrl.id, days = 7)
+        stats90 <- analyticsRepo.getClickStats(createdUrl.id, days = 90)
+      yield 
+        assertTrue(stats1.totalClicks == 1) &&
+        assertTrue(stats7.totalClicks == 1) &&
+        assertTrue(stats90.totalClicks == 1)
+    },
+    
+    test("create should handle analytics with minimal data") {
+      for
+        analyticsRepo <- ZIO.service[AnalyticsRepository]
+        urlRepo <- ZIO.service[URLRepository]
+        
+        url = DomainURL.create("minimal", "https://example.com")
+        createdUrl <- urlRepo.create(url)
+        
+        analytics = Analytics.create(createdUrl.id, None)
+        created <- analyticsRepo.create(analytics)
+      yield 
+        assertTrue(created.id > 0) &&
+        assertTrue(created.ipAddress.isEmpty)
     }
   ).provide(
     DatabaseTestUtils.createTestDatabase,

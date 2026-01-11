@@ -114,7 +114,65 @@ object URLRoutesSpec extends ZIOSpecDefault:
       yield 
         assertTrue(response.status == Status.Ok) &&
         assertTrue(body.totalClicks == 10L)
+    },
+    
+    test("POST /api/urls should reject invalid URL") {
+      for
+        runtime <- ZIO.runtime[Any]
+        given Runtime[Any] = runtime
+        routes = URLRoutes.routes[IO]
+        request = Request[IO](Method.POST, uri"/api/urls")
+          .withEntity(URLCreateRequest("not-a-valid-url"))
+        response <- routes.orNotFound.run(request)
+      yield 
+        assertTrue(response.status == Status.BadRequest)
+    },
+    
+    test("GET /{shortCode} should return 404 for non-existent code") {
+      for
+        runtime <- ZIO.runtime[Any]
+        given Runtime[Any] = runtime
+        routes = URLRoutes.routes[IO]
+        request = Request[IO](Method.GET, uri"/nonexistent")
+        response <- routes.orNotFound.run(request)
+      yield 
+        assertTrue(response.status == Status.NotFound)
+    },
+    
+    test("POST /api/urls with custom alias should handle conflicts") {
+      for
+        runtime <- ZIO.runtime[Any]
+        given Runtime[Any] = runtime
+        routes = URLRoutes.routes[IO]
+        urlRepo <- ZIO.service[URLRepository]
+        
+        // Create first URL with custom alias
+        _ <- urlRepo.create(DomainURL.create("code1", "https://first.com", customAlias = Some("my-alias")))
+        
+        // Try to create second URL with same alias
+        request = Request[IO](Method.POST, uri"/api/urls")
+          .withEntity(URLCreateRequest("https://second.com", customAlias = Some("my-alias")))
+        response <- routes.orNotFound.run(request)
+      yield 
+        assertTrue(response.status == Status.BadRequest || response.status == Status.Conflict)
+    },
+    
+    test("GET /api/urls/{id}/qr should generate QR code") {
+      for
+        runtime <- ZIO.runtime[Any]
+        given Runtime[Any] = runtime
+        routes = URLRoutes.routes[IO]
+        urlRepo <- ZIO.service[URLRepository]
+        
+        url = DomainURL.create("qr1", "https://example.com")
+        created <- urlRepo.create(url)
+        
+        request = Request[IO](Method.GET, uri"/api/urls" / created.id.toString / "qr")
+        response <- routes.orNotFound.run(request)
+      yield 
+        assertTrue(response.status == Status.Ok)
     }
+
   ).provide(
     ZLayer.succeed(AppConfig.default),
     mockUrlService,

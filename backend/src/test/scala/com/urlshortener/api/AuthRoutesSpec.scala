@@ -84,6 +84,52 @@ object AuthRoutesSpec extends ZIOSpecDefault:
         response <- routes.orNotFound.run(request)
       yield 
         assertTrue(response.status == Status.Unauthorized)
+    },
+    
+    test("POST /auth/register should reject duplicate email") {
+      for
+        runtime <- ZIO.runtime[Any]
+        given Runtime[Any] = runtime
+        routes = AuthRoutes.routes[IO]
+        userRepo <- ZIO.service[UserRepository]
+        
+        // Create first user
+        _ <- userRepo.create(User(1L, "duplicate@example.com", "hashed_pass", None, true, false, false, None, Instant.now(), Instant.now(), None))
+        
+        // Try to register with same email
+        request = Request[IO](Method.POST, uri"/auth/register")
+          .withEntity(RegisterRequest("duplicate@example.com", "AnotherPass123", Some("Another User")))
+        response <- routes.orNotFound.run(request)
+      yield 
+        assertTrue(response.status == Status.BadRequest || response.status == Status.Conflict)
+    },
+    
+    test("POST /auth/register should reject weak password") {
+      for
+        runtime <- ZIO.runtime[Any]
+        given Runtime[Any] = runtime
+        routes = AuthRoutes.routes[IO]
+        request = Request[IO](Method.POST, uri"/auth/register")
+          .withEntity(RegisterRequest("weak@example.com", "weak", Some("Weak User")))
+        response <- routes.orNotFound.run(request)
+      yield 
+        assertTrue(response.status == Status.BadRequest)
+    },
+    
+    test("POST /auth/login should fail for wrong password") {
+      for
+        runtime <- ZIO.runtime[Any]
+        given Runtime[Any] = runtime
+        routes = AuthRoutes.routes[IO]
+        userRepo <- ZIO.service[UserRepository]
+        
+        _ <- userRepo.create(User(1L, "user@example.com", "hashed_correct", None, true, false, false, None, Instant.now(), Instant.now(), None))
+        
+        request = Request[IO](Method.POST, uri"/auth/login")
+          .withEntity(LoginRequest("user@example.com", "wrongpassword"))
+        response <- routes.orNotFound.run(request)
+      yield 
+        assertTrue(response.status == Status.Unauthorized)
     }
   ).provide(
     ZLayer.succeed(AppConfig.default),

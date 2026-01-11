@@ -53,7 +53,100 @@ object AnalyticsServiceSpec extends ZIOSpecDefault:
       yield 
         assertTrue(stats.totalClicks == 100L) &&
         assertTrue(stats.uniqueVisitors == 50L)
+    },
+    
+    test("trackClick should handle null user agent gracefully") {
+      for
+        service <- ZIO.service[AnalyticsService]
+        _ <- service.trackClick(
+          urlId = 1L,
+          ipAddress = Some("192.168.1.1"),
+          userAgent = None,
+          referrer = Some("http://example.com")
+        )
+      yield 
+        assertCompletes
+    },
+    
+    test("trackClick should handle empty user agent string") {
+      for
+        service <- ZIO.service[AnalyticsService]
+        _ <- service.trackClick(
+          urlId = 1L,
+          ipAddress = Some("10.0.0.1"),
+          userAgent = Some(""),
+          referrer = None
+        )
+      yield 
+        assertCompletes
+    },
+    
+    test("trackClick should handle malformed user agent") {
+      for
+        service <- ZIO.service[AnalyticsService]
+        _ <- service.trackClick(
+          urlId = 1L,
+          ipAddress = Some("127.0.0.1"),
+          userAgent = Some("InvalidUserAgent###@@@"),
+          referrer = Some("http://test.com")
+        )
+      yield 
+        assertCompletes
+    },
+    
+    test("trackClick should handle IPv6 addresses") {
+      for
+        service <- ZIO.service[AnalyticsService]
+        _ <- service.trackClick(
+          urlId = 1L,
+          ipAddress = Some("2001:0db8:85a3:0000:0000:8a2e:0370:7334"),
+          userAgent = Some("Mozilla/5.0"),
+          referrer = None
+        )
+      yield 
+        assertCompletes
+    },
+    
+    test("trackClick should handle localhost IP") {
+      for
+        service <- ZIO.service[AnalyticsService]
+        _ <- service.trackClick(
+          urlId = 1L,
+          ipAddress = Some("127.0.0.1"),
+          userAgent = Some("Mozilla/5.0"),
+          referrer = None
+        )
+      yield 
+        assertCompletes
+    },
+    
+    test("getUrlAnalytics should work with different time ranges") {
+      for
+        service <- ZIO.service[AnalyticsService]
+        stats1 <- service.getUrlAnalytics(1L, 1)
+        stats7 <- service.getUrlAnalytics(1L, 7)
+        stats30 <- service.getUrlAnalytics(1L, 30)
+        stats90 <- service.getUrlAnalytics(1L, 90)
+      yield 
+        assertTrue(stats1.totalClicks == 100L) &&
+        assertTrue(stats7.totalClicks == 100L) &&
+        assertTrue(stats30.totalClicks == 100L) &&
+        assertTrue(stats90.totalClicks == 100L)
+    },
+    
+    test("trackClick should handle missing IP address") {
+      for
+        service <- ZIO.service[AnalyticsService]
+        _ <- service.trackClick(
+          urlId = 1L,
+          ipAddress = None,
+          userAgent = Some("Mozilla/5.0"),
+          referrer = Some("http://example.com")
+        )
+      yield 
+        assertCompletes
     }
+
   ).provide(
     AnalyticsService.layer,
     mockAnalyticsRepo,
