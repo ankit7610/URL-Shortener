@@ -165,6 +165,88 @@ object URLRepositorySpec extends ZIOSpecDefault:
       yield 
         assertTrue(results.length == 1) &&
         assertTrue(results.head.title == Some("GitHub"))
+    },
+    
+    test("findByUserId should handle pagination edge cases - offset beyond data") {
+      for
+        repo <- ZIO.service[URLRepository]
+        
+        url1 = DomainURL.create("p1", "https://url1.com", userId = Some(1L))
+        url2 = DomainURL.create("p2", "https://url2.com", userId = Some(1L))
+        
+        _ <- repo.create(url1)
+        _ <- repo.create(url2)
+        
+        results <- repo.findByUserId(1L, offset = 100, limit = 10)
+      yield 
+        assertTrue(results.isEmpty)
+    },
+    
+    test("findByUserId should handle zero limit") {
+      for
+        repo <- ZIO.service[URLRepository]
+        
+        url = DomainURL.create("z1", "https://example.com", userId = Some(1L))
+        _ <- repo.create(url)
+        
+        results <- repo.findByUserId(1L, offset = 0, limit = 0)
+      yield 
+        assertTrue(results.isEmpty)
+    },
+    
+    test("searchByUserId should handle special characters in query") {
+      for
+        repo <- ZIO.service[URLRepository]
+        
+        url1 = DomainURL.create("sp1", "https://test.com", userId = Some(1L), title = Some("Test%Title"))
+        _ <- repo.create(url1)
+        
+        results <- repo.searchByUserId(1L, "%", offset = 0, limit = 10)
+      yield 
+        assertTrue(results.nonEmpty)
+    },
+    
+    test("findByShortCode should return None for non-existent code") {
+      for
+        repo <- ZIO.service[URLRepository]
+        found <- repo.findByShortCode("nonexistent123")
+      yield 
+        assertTrue(found.isEmpty)
+    },
+    
+    test("create should handle URLs with all optional fields as None") {
+      for
+        repo <- ZIO.service[URLRepository]
+        
+        url = DomainURL.create("min1", "https://minimal.com")
+        created <- repo.create(url)
+        
+        found <- repo.findById(created.id)
+      yield 
+        assertTrue(found.isDefined) &&
+        assertTrue(found.get.title.isEmpty) &&
+        assertTrue(found.get.customAlias.isEmpty) &&
+        assertTrue(found.get.userId.isEmpty)
+    },
+    
+    test("countByUserId should return 0 for user with no URLs") {
+      for
+        repo <- ZIO.service[URLRepository]
+        count <- repo.countByUserId(999L)
+      yield 
+        assertTrue(count == 0)
+    },
+    
+    test("searchByUserId should return empty for non-matching query") {
+      for
+        repo <- ZIO.service[URLRepository]
+        
+        url = DomainURL.create("nm1", "https://example.com", userId = Some(1L), title = Some("Example"))
+        _ <- repo.create(url)
+        
+        results <- repo.searchByUserId(1L, "nonmatching", offset = 0, limit = 10)
+      yield 
+        assertTrue(results.isEmpty)
     }
   ).provide(
     DatabaseTestUtils.createTestDatabase,
