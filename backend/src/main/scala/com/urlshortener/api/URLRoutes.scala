@@ -81,7 +81,7 @@ object URLRoutes:
           finalUrl <- urlRepo.update(savedUrl.copy(shortCode = shortCode))
           
           // Build response
-          baseUrl = "http://localhost:8000" // TODO: Get from request
+          baseUrl = config.baseUrl
           response = URLResponse(
             id = finalUrl.id,
             shortCode = finalUrl.shortCode,
@@ -191,7 +191,7 @@ object URLRoutes:
           url <- urlRepo.findById(urlId)
             .someOrFail(new Exception("URL not found"))
           
-          baseUrl = "http://localhost:8000"
+          baseUrl = config.baseUrl
           shortUrl = s"$baseUrl/${url.customAlias.getOrElse(url.shortCode)}"
           
           qrBytes <- qrService.generateQRCode(shortUrl, 300, 2)

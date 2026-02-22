@@ -69,6 +69,8 @@ object SecurityService:
         }
       }
     
+    private val specialChars = "!@#$%^&*()_+-=[]{}|;':"",./<>?"
+    
     override def validatePasswordStrength(password: String): Either[String, Unit] =
       if password.length < config.security.passwordMinLength then
         Left(s"Password must be at least ${config.security.passwordMinLength} characters")
@@ -76,9 +78,12 @@ object SecurityService:
         val hasUpper = password.exists(_.isUpper)
         val hasLower = password.exists(_.isLower)
         val hasDigit = password.exists(_.isDigit)
+        val hasSpecial = password.exists(specialChars.contains(_))
         
         if !hasUpper || !hasLower || !hasDigit then
           Left("Password must contain uppercase, lowercase, and digit")
+        else if !hasSpecial then
+          Left("Password must contain at least one special character")
         else
           Right(())
   

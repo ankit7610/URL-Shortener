@@ -1,10 +1,42 @@
-import { Link2, BarChart3, Shield, Zap, Sparkles } from 'lucide-react'
+'use client'
+
+import { useState } from 'react'
+import { Link2, BarChart3, Shield, Zap, Sparkles, Copy, Check, ArrowRight, Github, Twitter, Linkedin, MousePointerClick, LinkIcon, Share2 } from 'lucide-react'
 import Link from 'next/link'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { AnimatedButton } from '@/components/animated-button'
 import { GlassCard } from '@/components/glass-card'
 
 export default function HomePage() {
+    const [url, setUrl] = useState('')
+    const [shortenedUrl, setShortenedUrl] = useState('')
+    const [isLoading, setIsLoading] = useState(false)
+    const [copied, setCopied] = useState(false)
+    const [error, setError] = useState('')
+
+    const handleShorten = async () => {
+        if (!url.trim()) {
+            setError('Please enter a URL')
+            return
+        }
+
+        setError('')
+        setIsLoading(true)
+
+        // Simulate URL shortening (demo mode)
+        await new Promise(resolve => setTimeout(resolve, 1200))
+
+        const shortCode = Math.random().toString(36).substring(2, 9)
+        setShortenedUrl(`https://lnk.sh/${shortCode}`)
+        setIsLoading(false)
+    }
+
+    const handleCopy = async () => {
+        await navigator.clipboard.writeText(shortenedUrl)
+        setCopied(true)
+        setTimeout(() => setCopied(false), 2000)
+    }
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-950 dark:via-blue-950 dark:to-purple-950 animate-gradient">
             {/* Header */}
@@ -70,14 +102,60 @@ export default function HomePage() {
                         <div className="flex flex-col md:flex-row gap-4">
                             <input
                                 type="url"
+                                value={url}
+                                onChange={(e) => { setUrl(e.target.value); setError(''); setShortenedUrl('') }}
                                 placeholder="✨ Paste your long URL here..."
                                 className="flex-1 px-6 py-4 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-purple-500 focus:border-transparent dark:bg-gray-800/50 dark:text-white text-lg placeholder:text-gray-400 dark:placeholder:text-gray-500 transition-all"
+                                onKeyDown={(e) => e.key === 'Enter' && handleShorten()}
                             />
-                            <AnimatedButton variant="primary" size="lg">
-                                <Zap className="h-5 w-5" />
-                                Shorten URL
+                            <AnimatedButton
+                                variant="primary"
+                                size="lg"
+                                onClick={handleShorten}
+                                disabled={isLoading}
+                            >
+                                {isLoading ? (
+                                    <span className="flex items-center gap-2">
+                                        <span className="animate-spin h-5 w-5 border-2 border-white/30 border-t-white rounded-full" />
+                                        Shortening...
+                                    </span>
+                                ) : (
+                                    <>
+                                        <Zap className="h-5 w-5" />
+                                        Shorten URL
+                                    </>
+                                )}
                             </AnimatedButton>
                         </div>
+
+                        {/* Error message */}
+                        {error && (
+                            <div className="mt-3 text-red-500 dark:text-red-400 text-sm font-medium animate-fade-in">
+                                {error}
+                            </div>
+                        )}
+
+                        {/* Result */}
+                        {shortenedUrl && (
+                            <div className="mt-6 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl animate-fade-in">
+                                <p className="text-sm text-green-600 dark:text-green-400 font-medium mb-2">
+                                    ✅ Your shortened URL is ready!
+                                </p>
+                                <div className="flex items-center gap-3">
+                                    <code className="flex-1 px-4 py-2 bg-white dark:bg-gray-800 rounded-lg text-blue-600 dark:text-blue-400 font-mono text-lg truncate">
+                                        {shortenedUrl}
+                                    </code>
+                                    <button
+                                        onClick={handleCopy}
+                                        className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-medium"
+                                    >
+                                        {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                                        {copied ? 'Copied!' : 'Copy'}
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
                         <div className="mt-4 flex items-center justify-center text-sm text-gray-500 dark:text-gray-400">
                             <Shield className="h-4 w-4 mr-2 text-green-500" />
                             No registration required • Free forever • HTTPS secure
@@ -113,6 +191,33 @@ export default function HomePage() {
                     />
                 </div>
 
+                {/* How it Works Section */}
+                <div className="mb-16">
+                    <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
+                        How It Works
+                    </h2>
+                    <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+                        <StepCard
+                            step={1}
+                            icon={<LinkIcon className="h-6 w-6" />}
+                            title="Paste Your URL"
+                            description="Enter any long URL you want to shorten — no signup needed"
+                        />
+                        <StepCard
+                            step={2}
+                            icon={<MousePointerClick className="h-6 w-6" />}
+                            title="Click Shorten"
+                            description="We generate a short, memorable link powered by base62 encoding"
+                        />
+                        <StepCard
+                            step={3}
+                            icon={<Share2 className="h-6 w-6" />}
+                            title="Share & Track"
+                            description="Share your link anywhere and track every click with our analytics"
+                        />
+                    </div>
+                </div>
+
                 {/* Stats Section */}
                 <GlassCard className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 dark:from-blue-500 dark:via-purple-500 dark:to-pink-500 text-white border-none p-12">
                     <div className="grid md:grid-cols-3 gap-8 text-center">
@@ -134,8 +239,62 @@ export default function HomePage() {
 
             {/* Footer */}
             <footer className="border-t border-white/20 dark:border-gray-800/50 bg-white/30 dark:bg-gray-900/30 backdrop-blur-xl mt-16">
-                <div className="container mx-auto px-4 py-8 text-center text-gray-600 dark:text-gray-400">
-                    <p>© 2026 LinkShort. All rights reserved.</p>
+                <div className="container mx-auto px-4 py-12">
+                    <div className="grid md:grid-cols-4 gap-8 mb-8">
+                        {/* Brand */}
+                        <div className="md:col-span-1">
+                            <div className="flex items-center space-x-2 mb-4">
+                                <Link2 className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                                <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
+                                    LinkShort
+                                </span>
+                            </div>
+                            <p className="text-gray-500 dark:text-gray-400 text-sm leading-relaxed">
+                                Production-grade URL shortener with analytics, QR codes, and enterprise security.
+                            </p>
+                        </div>
+
+                        {/* Product */}
+                        <div>
+                            <h4 className="font-semibold text-gray-900 dark:text-white mb-4">Product</h4>
+                            <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+                                <li><Link href="/dashboard" className="hover:text-blue-600 dark:hover:text-blue-400 transition">Dashboard</Link></li>
+                                <li><Link href="/pricing" className="hover:text-blue-600 dark:hover:text-blue-400 transition">Pricing</Link></li>
+                                <li><a href="/health" className="hover:text-blue-600 dark:hover:text-blue-400 transition">API Status</a></li>
+                            </ul>
+                        </div>
+
+                        {/* Resources */}
+                        <div>
+                            <h4 className="font-semibold text-gray-900 dark:text-white mb-4">Resources</h4>
+                            <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+                                <li><a href="/docs" className="hover:text-blue-600 dark:hover:text-blue-400 transition">API Docs</a></li>
+                                <li><Link href="/privacy" className="hover:text-blue-600 dark:hover:text-blue-400 transition">Privacy Policy</Link></li>
+                                <li><Link href="/terms" className="hover:text-blue-600 dark:hover:text-blue-400 transition">Terms of Service</Link></li>
+                            </ul>
+                        </div>
+
+                        {/* Connect */}
+                        <div>
+                            <h4 className="font-semibold text-gray-900 dark:text-white mb-4">Connect</h4>
+                            <div className="flex space-x-3">
+                                <a href="https://github.com/ankit7610/URL-Shortener" target="_blank" rel="noopener noreferrer"
+                                    className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors group">
+                                    <Github className="h-5 w-5 text-gray-600 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400" />
+                                </a>
+                                <a href="#" className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors group">
+                                    <Twitter className="h-5 w-5 text-gray-600 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400" />
+                                </a>
+                                <a href="#" className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors group">
+                                    <Linkedin className="h-5 w-5 text-gray-600 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400" />
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="border-t border-gray-200 dark:border-gray-800 pt-6 text-center text-gray-500 dark:text-gray-400 text-sm">
+                        <p>© 2026 LinkShort. All rights reserved. Built with ❤️ using Scala, ZIO & Next.js</p>
+                    </div>
                 </div>
             </footer>
         </div>
@@ -165,3 +324,29 @@ function FeatureCard({ icon, title, description, gradient }: {
     )
 }
 
+function StepCard({ step, icon, title, description }: {
+    step: number
+    icon: React.ReactNode
+    title: string
+    description: string
+}) {
+    return (
+        <div className="text-center group">
+            <div className="relative inline-flex items-center justify-center w-16 h-16 mb-4 rounded-full bg-gradient-to-br from-blue-600 to-purple-600 text-white shadow-lg group-hover:scale-110 transition-transform duration-300">
+                {icon}
+                <span className="absolute -top-2 -right-2 w-7 h-7 bg-pink-500 text-white text-xs font-bold rounded-full flex items-center justify-center shadow-md">
+                    {step}
+                </span>
+            </div>
+            {step < 3 && (
+                <ArrowRight className="hidden md:block absolute right-0 top-1/2 -translate-y-1/2 h-6 w-6 text-gray-300 dark:text-gray-600" />
+            )}
+            <h3 className="text-lg font-bold mb-2 dark:text-white">
+                {title}
+            </h3>
+            <p className="text-gray-600 dark:text-gray-300 text-sm leading-relaxed">
+                {description}
+            </p>
+        </div>
+    )
+}
