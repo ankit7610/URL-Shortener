@@ -274,14 +274,12 @@ npm test -- --coverage
 5. **Table partitioning** for analytics (by date)
 6. **Distributed caching** with Redis Cluster
 
-See [SYSTEM_DESIGN.md](SYSTEM_DESIGN.md) for detailed analysis.
-
 ## 🎯 Interview Talking Points
 
 This project demonstrates:
 
 1. **System Design**: Scalable architecture with caching, database optimization
-2. **Backend Engineering**: Async Python, connection pooling, graceful degradation
+2. **Backend Engineering**: Functional Scala 3/ZIO, connection pooling, graceful degradation
 3. **Database Design**: Proper indexing, foreign keys, migration strategy
 4. **API Design**: RESTful endpoints, proper status codes, pagination
 5. **Security**: Authentication, rate limiting, input validation

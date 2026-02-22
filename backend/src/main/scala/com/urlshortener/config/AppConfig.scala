@@ -45,6 +45,7 @@ case class AppConfig(
   appVersion: String,
   environment: String,
   debug: Boolean,
+  baseUrl: String,
   allowedOrigins: List[String],
   database: DatabaseConfig,
   redis: RedisConfig,
@@ -87,6 +88,7 @@ object AppConfig:
     appVersion = "1.0.0",
     environment = "development",
     debug = true,
+    baseUrl = "http://localhost:8000",
     allowedOrigins = List("http://localhost:3000"),
     database = DatabaseConfig(
       url = "jdbc:postgresql://localhost:5432/urlshortener?user=urlshortener&password=urlshortener",
